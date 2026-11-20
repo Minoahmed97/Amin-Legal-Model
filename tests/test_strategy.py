@@ -57,3 +57,11 @@ def test_near_deadline_is_flagged_even_without_mandatory_checkbox():
     result = assess_strategy(_facts(deadline_date=date(2026, 11, 22)))
     assert result["urgency"] == "عاجلة جدًا"
     assert "deadline_within_three_days" in result["rule_triggers"]
+
+
+
+def test_past_entered_deadline_triggers_procedural_review_not_silence():
+    result = assess_strategy(_facts(deadline_date=date(2026, 11, 19)))
+    assert result["urgency"] == "عاجلة جدًا"
+    assert "الآن" in result["recommendation"]
+    assert "entered_deadline_in_past" in result["rule_triggers"]
