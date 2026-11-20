@@ -1,0 +1,1 @@
+"""Egyptian legal domain components."""
