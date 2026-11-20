@@ -1,0 +1,14 @@
+dataset:
+  name: "example-egyptian-law-corpus"
+  version: "0.0.0"
+  language: "ar"
+  jurisdiction: "EG"
+  source: null
+  source_url: null
+  license: "UNVERIFIED"
+  permitted_uses: []
+  contains_personal_data: false
+  anonymization: "not_applicable"
+  reviewed_by: null
+  review_date: null
+  notes: "Example only; not a real dataset."
