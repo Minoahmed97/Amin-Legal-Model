@@ -1,13 +1,14 @@
 from fastapi import FastAPI, HTTPException, status
 
 from amin_legal_model import __version__
+from amin_legal_model.legal.strategy import assess_strategy
 from amin_legal_model.providers.base import ModelNotConfiguredError, UnconfiguredProvider
-from amin_legal_model.schemas import LegalRequest, LegalResponse
+from amin_legal_model.schemas import LegalRequest, LegalResponse, LegalStrategyRequest
 
 app = FastAPI(
     title="AMIN Legal AI Engine API",
     version=__version__,
-    description="Reusable legal AI engine API. A model provider is not configured yet.",
+    description="Reusable Egyptian-law engine API. Configure a licensed inference model for generation.",
 )
 
 _provider = UnconfiguredProvider()
@@ -15,12 +16,24 @@ _provider = UnconfiguredProvider()
 
 @app.get("/health")
 def health() -> dict[str, str | bool]:
+    configured = not isinstance(_provider, UnconfiguredProvider)
     return {
         "status": "ok",
         "service": "amin-legal-model",
-        "model_loaded": False,
-        "message": "API is running; inference is unavailable until a model is configured.",
+        "model_configured": configured,
+        "model_loaded": bool(getattr(_provider, "model_loaded", False)),
+        "message": (
+            "API is running; inference availability depends on the configured provider and model."
+            if configured else
+            "API is running; inference is unavailable until a model is configured."
+        ),
     }
+
+
+@app.post("/v1/legal/strategy")
+def legal_strategy(request: LegalStrategyRequest) -> dict:
+    """Return a transparent first-pass strategy triage, not an AI legal opinion."""
+    return assess_strategy(request.model_dump())
 
 
 @app.post("/v1/legal/respond", response_model=LegalResponse)
