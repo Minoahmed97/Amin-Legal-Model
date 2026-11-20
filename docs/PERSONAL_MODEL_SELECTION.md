@@ -17,7 +17,7 @@ Official references:
 - Gemma 4 overview and memory estimates: https://ai.google.dev/gemma/docs/core
 - vLLM Gemma 4 serving recipe: https://docs.vllm.ai/projects/recipes/en/stable/Google/Gemma4.html
 
-The official Gemma overview estimates about 17.5 GB for 4-bit Q4_0 weights for the 31B model; that is weights only, not a full server capacity guarantee. KV cache, context length, runtime overhead and concurrent requests require additional memory. vLLM's BF16 recipe lists 1×80 GB NVIDIA GPU for the unquantized 31B model. The QAT compressed-tensors checkpoint is the chosen initial route to reduce the weight-memory requirement.
+The official Gemma overview estimates about 17.5 GB for 4-bit Q4_0 weights for the 31B model; that is weights only, not a full server capacity guarantee. KV cache, context length, runtime overhead and concurrent requests require additional memory. vLLM's BF16 recipe lists 1×80 GB NVIDIA GPU for the unquantized 31B model. The QAT compressed-tensors checkpoint is the chosen initial route to reduce the weight-memory requirement. The deployment sampling defaults follow the Gemma 4 model card: temperature 1.0, top-p 0.95 and top-k 64; these are starting settings to validate on the Egyptian legal benchmark.
 
 ## Arabic-specialist challenger
 
