@@ -45,6 +45,33 @@ Initial discovery points (access and reuse terms must be checked before bulk col
 
 The IDSC portal exposes searches for legislation, Supreme Constitutional Court, Cassation, Supreme Administrative Court, Administrative Judiciary, economic judgments, and State Council opinions. The Cassation portal exposes civil and criminal divisions and related specializations. These are discovery sources, not proof that every record is downloadable, complete, machine-readable, or licensed for bulk reuse.
 
+## Rights, permissions, and source admission (mandatory)
+
+**Default-deny rule:** no document collection, automated extraction, bulk download, persistent storage, indexing, commercial retrieval/display, redistribution, or model training from a source until the exact intended use has a documented legal basis. Public accessibility, a paid personal subscription, or the fact that a document is an official document does not by itself establish permission for every technical and commercial use.
+
+Before onboarding a source, complete [SOURCE_LICENSE_REGISTER.md](SOURCE_LICENSE_REGISTER.md) and retain evidence (terms snapshot/PDF, written permission, contract, correspondence, date checked, and reviewer). Do not use a personal login or subscription as a substitute for institutional permission. Do not circumvent rate limits, access controls, CAPTCHAs, robots restrictions, or express anti-automation terms.
+
+Every source and every permitted processing activity must be independently classified. A source can permit reading but not automated collection; storage but not redistribution; RAG/retrieval but not fine-tuning. **RAG, model training/fine-tuning, and displaying source passages to commercial end users are separate permissions and must each be expressly covered where required.**
+
+Required per-source record:
+- legal owner/operator and exact source/service;
+- terms URL, version/date checked, and evidence location;
+- access method permitted (manual, API, bulk export, automated access);
+- permitted copying, storage, backup, OCR, normalization, and retention;
+- permitted indexing, embeddings, retrieval, AI analysis, and commercial end-user display;
+- permitted redistribution/export and attribution requirements;
+- whether training/fine-tuning is expressly allowed;
+- user/account limits, rate limits, geography, confidentiality and personal-data restrictions;
+- fee, contract term, expiry, termination/deletion duties, and contact;
+- decision owner, legal review date, next review date, and status.
+
+Allowed status values:
+- `approved`: documented basis covers the exact planned processing and commercial use.
+- `written_permission_required`: do not ingest until signed/written permission is received.
+- `research_only`: use only within the documented non-commercial/research limits; exclude from production commercial corpus.
+- `blocked`: terms expressly prohibit the planned method/use, or permission was refused.
+- `unknown`: terms have not been adequately checked; treat as not approved.
+
 ## Temporal law and amendment tracking
 
 Store each legal instrument as a versioned record. Capture, where available: instrument type/number/year and authority; official publication number/date; enactment, publication, commencement, repeal dates; every amending/repealing/suspending/interpreting instrument; affected articles and before/after text; transitional provisions; territorial/personal/subject scope; status as of a specified date; source URL/file, retrieval date, checksum, OCR and human-review status.
@@ -60,8 +87,8 @@ Retrieval must answer **law in force today**, **law applicable on the date of th
 - Detect duplicates/conflicting versions; never silently overwrite history.
 - Mark missing years, inaccessible records, and unverified citations.
 - Never fabricate laws, articles, judgments, appeal numbers, dates, courts, quotations, or facts.
-- Public accessibility is not automatically permission for bulk scraping, redistribution, or model training. Review copyright, database terms, confidentiality, and Egyptian data-protection requirements.
 - Keep private client files separate from the public corpus; they are not training data by default.
+- Do not treat a statutory exception from copyright protection for official documents as blanket permission to breach portal terms, bypass access restrictions, or copy a protected database compilation/arrangement. Obtain Egyptian legal review for each acquisition route.
 
 ## Coverage as a release requirement
 
