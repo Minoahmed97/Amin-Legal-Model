@@ -46,6 +46,8 @@ If the server cannot fit the model, do not reduce safeguards or silently switch 
 ## 4. Test a real private inference request
 
 ```bash
+set -a; . ./.env; set +a
+
 curl -X POST http://127.0.0.1:8000/v1/legal/respond \
   -H "Content-Type: application/json" \
   -H "X-Amin-Api-Key: $AMIN_API_KEY" \
@@ -62,7 +64,8 @@ This request verifies the inference path only. It is not a legal accuracy benchm
 Run the repeatable readiness + real-inference smoke test after startup:
 
 ```bash
-AMIN_API_KEY="$AMIN_API_KEY" python scripts/check_personal_deployment.py
+set -a; . ./.env; set +a
+python scripts/check_personal_deployment.py
 ```
 
 The script prints pass/fail state without printing the answer or secret.
