@@ -11,7 +11,7 @@ def test_load_project_config() -> None:
     assert config["project"]["name"] == "AMIN Legal Model"
     assert config["runtime"]["provider"] == "vllm"
     assert config["runtime"]["model_id"] == "google/gemma-4-31B-it-qat-w4a16-ct"
-    assert config["runtime"]["deployment"] == "single_user_private_server"
+    assert config["project"]["deployment"] == "single_user_private_server"
 
 
 def test_reject_non_mapping_config(tmp_path: Path) -> None:
