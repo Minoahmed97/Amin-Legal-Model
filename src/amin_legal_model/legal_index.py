@@ -170,7 +170,7 @@ def build_legal_index(
                         """INSERT INTO legal_chunks (
                             document_id, chunk_number, title, branch, document_type,
                             source_id, source_reference, source_url, publication_date,
-                            effective_from, effective_to, legal_identifier, amends_json,
+                            effective_from, effective_to, instrument_number, legal_identifier, amends_json,
                             repeals_json, amended_articles_json, chunk_text
                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                         (
