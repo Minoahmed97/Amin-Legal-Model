@@ -1,24 +1,45 @@
 # Roadmap
 
+AMIN is a general-purpose Egyptian-law engine, not limited to one branch, court, or legal task. The full scope is defined in [EGYPTIAN_LAW_COVERAGE.md](EGYPTIAN_LAW_COVERAGE.md).
+
 ## Phase 1 — Foundation
 - [x] Create repository documentation and safe project skeleton.
-- [ ] Validate configuration and API health endpoint.
-- [ ] Add automated tests and continuous integration.
+- [x] Define provider boundary, initial legal prompt, retrieval contract, API skeleton.
+- [ ] Validate configuration and API health endpoint in a reproducible environment.
+- [ ] Run automated tests and verify CI results.
 
 ## Phase 2 — Model selection
-- [ ] Compare candidate open-weight language models.
-- [ ] Verify model, code, and tokenizer licenses for intended commercial use.
-- [ ] Measure Arabic quality, reasoning, latency, memory, and GPU requirements.
-- [ ] Select a baseline only after evaluation.
+- [x] Establish cross-branch model criteria and initial open-weight screening comparison.
+- [ ] Verify exact checkpoint, tokenizer, code and dependency licenses for commercial use.
+- [ ] Build Egyptian-law cross-branch benchmark and lawyer-reviewed gold answers.
+- [ ] Measure Arabic/legal quality, citation fidelity, temporal reasoning, latency, VRAM and cost.
+- [ ] Select baseline only after benchmark results.
 
-## Phase 3 — Legal data and evaluation
-- [ ] Define provenance and privacy requirements.
-- [ ] Build a reviewed Egyptian-law evaluation set.
-- [ ] Test citation accuracy and hallucination resistance.
+## Phase 3 — Comprehensive Egyptian legal corpus
+- [x] Define all-branches coverage map, source hierarchy and temporal versioning.
+- [ ] Inventory legislation, regulations, decisions and official publications across every branch.
+- [ ] Inventory Cassation, Supreme Administrative Court, Supreme Constitutional Court, Economic Courts and other available judgments.
+- [ ] Verify access terms, copyright/database rights and lawful reuse before collection.
+- [ ] Implement ingestion, OCR verification, deduplication, metadata, amendment chains and source citations.
+- [ ] Track coverage gaps by branch, authority, year and document type.
+- [ ] Monitor new laws, amendments, repeal and newly published judgments.
 
-## Phase 4 — Inference service
-- [ ] Integrate a selected model behind a provider interface.
-- [ ] Add authentication, rate limits, observability, and deployment controls.
-- [ ] Run security and load tests before production.
+## Phase 4 — Retrieval and legal reasoning
+- [ ] Implement hybrid retrieval, reranking, passage-level citations and date-aware retrieval.
+- [ ] Support law in force today and law applicable on the facts date.
+- [ ] Separate binding authority, persuasive judgments, official commentary and secondary materials.
+- [ ] Add abstention and conflict handling for incomplete or inconsistent sources.
 
-No model training or production deployment is claimed by this roadmap.
+## Phase 5 — Model adaptation
+- [ ] Compare retrieval/prompt improvements before fine-tuning.
+- [ ] Prepare lawful, de-identified, reviewed datasets.
+- [ ] Run LoRA/QLoRA experiments against the unchanged baseline.
+- [ ] Validate regressions across every legal branch before accepting changes.
+
+## Phase 6 — Inference service and integration
+- [ ] Integrate selected model behind provider interface.
+- [ ] Add authentication, rate limits, observability, privacy and deployment controls.
+- [ ] Run security, reliability and load tests.
+- [ ] Expose a stable API for future use by the existing Ameen app and other clients, without coupling this repository to that app during engine development.
+
+No model training, complete legal corpus, successful test run, or production deployment is claimed by this roadmap.
