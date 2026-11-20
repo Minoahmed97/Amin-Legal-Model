@@ -19,8 +19,9 @@ AMIN is a general-purpose Egyptian-law engine, not limited to one branch, court,
 - [x] Define all-branches coverage map, source hierarchy and temporal versioning.
 - [ ] Inventory legislation, regulations, decisions and official publications across every branch.
 - [ ] Inventory Cassation, Supreme Administrative Court, Supreme Constitutional Court, Economic Courts and other available judgments.
-- [x] Define a default-deny source license register and operation-specific permission guard.\n- [ ] Verify access terms, copyright/database rights and lawful reuse before collection.
-- [ ] Implement ingestion, OCR verification, deduplication, metadata, amendment chains and source citations.
+- [x] Define a default-deny source license register and operation-specific permission guard.
+- [ ] Verify access terms, copyright/database rights and lawful reuse before collection.
+- [x] Implement a permission-gated offline document importer with provenance, hashing and duplicate detection.\n- [ ] Implement OCR verification, amendment-chain resolution, chunking and searchable indexing.
 - [ ] Track coverage gaps by branch, authority, year and document type.
 - [ ] Monitor new laws, amendments, repeal and newly published judgments.
 
