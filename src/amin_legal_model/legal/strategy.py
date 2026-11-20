@@ -73,7 +73,7 @@ def assess_strategy(facts: dict[str, Any]) -> dict[str, Any]:
         if not verified_deadline:
             warnings.append("الميـعاد المدخل غير مؤكد؛ راجع مصدر بدء الميعاد وطريقة الإعلان والعطلات والقواعد الخاصة قبل الإيداع.")
 
-    must_act = mandatory or silence_risk or (deadline is not None and days_left is not None and 0 <= days_left <= 7)
+    must_act = mandatory or silence_risk or (deadline is not None and days_left is not None and days_left <= 7)
     supported = [
         point for point in response_points
         if point.get("supported_by_record") is True
