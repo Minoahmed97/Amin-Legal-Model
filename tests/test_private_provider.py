@@ -1,3 +1,4 @@
+import asyncio
 import httpx
 import pytest
 
@@ -58,8 +59,7 @@ def test_vllm_factory_requires_all_private_server_settings():
         provider_from_environment({"AMIN_PROVIDER": "vllm"})
 
 
-@pytest.mark.asyncio
-async def test_vllm_provider_sends_system_and_user_messages(monkeypatch):
+def test_vllm_provider_sends_system_and_user_messages(monkeypatch):
     provider = OpenAICompatibleProvider(
         "http://model:8001/v1", "amin-gemma", "secret"
     )
@@ -84,14 +84,13 @@ async def test_vllm_provider_sends_system_and_user_messages(monkeypatch):
             return FakeResponse()
 
     monkeypatch.setattr(httpx, "AsyncClient", FakeClient)
-    answer = await provider.generate(system_prompt="تعليمات", user_prompt="وقائع")
+    answer = asyncio.run(provider.generate(system_prompt="تعليمات", user_prompt="وقائع"))
     assert answer == "تحليل قانوني تجريبي"
     assert captured["body"]["messages"][0]["role"] == "system"
     assert captured["body"]["messages"][1]["content"] == "وقائع"
 
 
-@pytest.mark.asyncio
-async def test_vllm_health_check_requires_configured_model(monkeypatch):
+def test_vllm_health_check_requires_configured_model(monkeypatch):
     provider = OpenAICompatibleProvider(
         "http://model:8001/v1", "amin-gemma", "secret"
     )
@@ -113,4 +112,4 @@ async def test_vllm_health_check_requires_configured_model(monkeypatch):
             return FakeResponse()
 
     monkeypatch.setattr(httpx, "AsyncClient", FakeClient)
-    assert await provider.health_check() is True
+    assert asyncio.run(provider.health_check()) is True
