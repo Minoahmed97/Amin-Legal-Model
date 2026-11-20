@@ -13,6 +13,8 @@ class LegalRequest(BaseModel):
     text: str = Field(min_length=1, max_length=100_000)
     jurisdiction: str = "EG"
     language: str = "ar"
+    retrieval_query: str | None = Field(default=None, max_length=2_000)
+    as_of_date: date | None = None
 
 
 class LegalResponse(BaseModel):
