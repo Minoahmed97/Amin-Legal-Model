@@ -11,7 +11,7 @@ def main() -> None:
     commands = parser.add_subparsers(dest="command")
 
     ingest = commands.add_parser("ingest", help="Ingest a lawfully acquired legal document")
-    ingest.add_argument("--input", required=True, help="Local TXT, MD, HTML, PDF or DOCX file")
+    ingest.add_argument("--input", required=True, help="Local TXT, MD, HTML, PDF, DOCX or image file")
     ingest.add_argument("--source-id", required=True, help="Source ID from configs/source_licenses.yaml")
     ingest.add_argument("--metadata", required=True, help="JSON object with required document metadata")
     ingest.add_argument("--output", default="data/corpus", help="Corpus output directory")
@@ -24,6 +24,10 @@ def main() -> None:
     search.add_argument("--database", default="data/index/legal.sqlite")
     search.add_argument("--query", required=True)
     search.add_argument("--limit", type=int, default=5)
+    search.add_argument(
+        "--as-of-date",
+        help="Filter by recorded effective dates and amendment/repeal links (YYYY-MM-DD)",
+    )
 
     args = parser.parse_args()
     if args.command == "ingest":
@@ -41,7 +45,9 @@ def main() -> None:
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return
     if args.command == "search":
-        result = search_legal_index(args.database, args.query, limit=args.limit)
+        result = search_legal_index(
+            args.database, args.query, limit=args.limit, as_of_date=args.as_of_date
+        )
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return
 
