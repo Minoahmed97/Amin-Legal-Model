@@ -13,8 +13,10 @@ runtime:
   max_concurrent_sequences: 1
 
 generation:
-  temperature: 0.2
+  temperature: 1.0
   max_new_tokens: 4096
+  top_p: 0.95
+  top_k: 64
   max_model_len: 16384
   reasoning_enabled: true
 
