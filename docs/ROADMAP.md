@@ -46,6 +46,7 @@ AMIN is a general-purpose Egyptian-law engine, not limited to one branch, court,
 - [ ] Run LoRA/QLoRA experiments against the unchanged baseline.
 - [ ] Validate regressions across every legal branch before accepting changes.
 
+- [x] Inspect the existing Ameen app API boundary and document a provider-based, streaming-safe integration contract without modifying app workflows.
 ## Phase 6 — Inference service and integration
 - [x] Implement optional local Transformers inference adapter with lazy loading and local-only default.
 - [x] Add private vLLM-compatible provider and single-user Docker deployment recipe.
