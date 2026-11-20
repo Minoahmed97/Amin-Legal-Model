@@ -52,6 +52,9 @@ def test_factory_selects_private_vllm_server():
     })
     assert isinstance(provider, OpenAICompatibleProvider)
     assert provider.model == "google/gemma-4-31B-it"
+    assert provider.temperature == 1.0
+    assert provider.top_p == 0.95
+    assert provider.top_k == 64
 
 
 def test_vllm_factory_requires_all_private_server_settings():
