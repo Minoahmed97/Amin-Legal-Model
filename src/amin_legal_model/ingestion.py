@@ -39,13 +39,13 @@ class _TextHTMLParser(HTMLParser):
         if tag in {"script", "style", "noscript"}:
             self._hidden_depth += 1
         elif tag in {"p", "div", "br", "li", "tr", "h1", "h2", "h3"}:
-            self.parts.append("\\n")
+            self.parts.append("\n")
 
     def handle_endtag(self, tag: str) -> None:
         if tag in {"script", "style", "noscript"} and self._hidden_depth:
             self._hidden_depth -= 1
         elif tag in {"p", "div", "li", "tr", "h1", "h2", "h3"}:
-            self.parts.append("\\n")
+            self.parts.append("\n")
 
     def handle_data(self, data: str) -> None:
         if not self._hidden_depth:
@@ -67,7 +67,7 @@ def _extract_text(path: Path) -> str:
         except ImportError as exc:
             raise IngestionError("PDF support requires the optional 'pypdf' dependency.") from exc
         reader = PdfReader(str(path))
-        return "\\n".join(page.extract_text() or "" for page in reader.pages)
+        return "\n".join(page.extract_text() or "" for page in reader.pages)
     if suffix == ".docx":
         try:
             from docx import Document
@@ -78,7 +78,7 @@ def _extract_text(path: Path) -> str:
         for table in document.tables:
             for row in table.rows:
                 paragraphs.append(" | ".join(cell.text for cell in row.cells))
-        return "\\n".join(paragraphs)
+        return "\n".join(paragraphs)
     raise IngestionError(f"Unsupported file type: {suffix}")
 
 
@@ -122,8 +122,8 @@ def ingest_document(
     clean_metadata = _validate_metadata(metadata)
 
     text = _extract_text(path)
-    text = re.sub(r"\\r\\n?", "\\n", text)
-    text = "\\n".join(line.rstrip() for line in text.splitlines()).strip()
+    text = re.sub(r"\r\n?", "\n", text)
+    text = "\n".join(line.rstrip() for line in text.splitlines()).strip()
     if len(text) < 20:
         raise IngestionError(
             "No usable text was extracted. Scanned/image-only PDFs require OCR and human verification."
@@ -170,7 +170,7 @@ def ingest_document(
             if existing.get("document_id") == digest:
                 return {"status": "duplicate", "document_id": digest, "output": str(corpus_file)}
 
-    serialized = json.dumps(record, ensure_ascii=False, separators=(",", ":")) + "\\n"
+    serialized = json.dumps(record, ensure_ascii=False, separators=(",", ":")) + "\n"
     # Atomic append replacement prevents a partial JSONL write on interruption.
     previous = corpus_file.read_text(encoding="utf-8") if corpus_file.exists() else ""
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=destination, delete=False) as handle:
