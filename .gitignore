@@ -24,3 +24,8 @@ weights/
 *.pth
 *.onnx
 *.gguf
+
+# Personal deployment: keep secrets and private legal corpus out of Git
+!.env.personal.example
+data/
+model-cache/
