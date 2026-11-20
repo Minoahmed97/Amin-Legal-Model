@@ -24,6 +24,8 @@ services:
       - "0.90"
       - --reasoning-parser
       - gemma4
+      - --default-chat-template-kwargs
+      - '{"enable_thinking": true}'
     environment:
       HF_HOME: /root/.cache/huggingface
       HF_TOKEN: ${HF_TOKEN:-}
@@ -70,7 +72,7 @@ services:
 
 networks:
   amin-private:
-    internal: true
+    driver: bridge
 
 volumes:
   amin-model-cache:
