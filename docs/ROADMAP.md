@@ -50,12 +50,25 @@ AMIN is a general-purpose Egyptian-law engine, not limited to one branch, court,
 ## Phase 6 — Inference service and integration
 - [x] Implement optional local Transformers inference adapter with lazy loading and local-only default.
 - [x] Add private vLLM-compatible provider and single-user Docker deployment recipe.
-- [ ] Provision the private GPU host, stage exact weights and pass live health/inference tests.
+- [ ] Provision the private GPU host, stage exact weights and pass live health/inference tests (server path is not the selected zero-budget phone path).
 - [ ] Integrate permission-gated legal retrieval into generated answers with verified citations.
 - [x] Add an API-key gate for versioned API routes, failing closed when production has no key.
 - [ ] Add per-user authentication, tenant isolation, distributed rate limits, observability and privacy controls.
 - [ ] Run security, reliability and load tests.
 - [x] Add a private API connector with independent client and model-server keys; keep API loopback-bound in the personal deployment.
-- [ ] Connect the existing Ameen app through a server-side authenticated proxy after the private service is live.
+- [ ] Connect the existing Ameen app through a server-side authenticated proxy after the private service is live (only if a server deployment is later selected).
 
 No live private-server deployment, complete Egyptian legal corpus, or completed Egyptian-law benchmark is claimed by this roadmap.
+
+## Phase 7 — Single-user Android local runtime (new target)
+- [x] Record the actual target device: Infinix HOT 60 5G, Dimensity 7060, 6 GB physical RAM.
+- [x] Add a separate Android-local runtime plan and isolated candidate profile; preserve the existing server profile.
+- [ ] Verify available device storage and Android/Termux compatibility before building.
+- [ ] Build or install a compatible ARM64 llama.cpp runtime on the phone.
+- [ ] Download and verify the Qwen3-1.7B Q4_K_M GGUF candidate.
+- [ ] Pass real on-device inference, stability, speed, thermal and battery tests.
+- [ ] Benchmark Egyptian legal Arabic and source fidelity; reject the candidate if quality is insufficient.
+- [ ] Design and test a private local Android bridge to the existing Ameen UI without exposing a public endpoint.
+- [ ] Integrate only after model and local bridge acceptance; preserve existing Gemini/Groq behavior.
+
+The Android profile is a smoke-test candidate, not a claim of a trained or production-ready Egyptian legal model.
