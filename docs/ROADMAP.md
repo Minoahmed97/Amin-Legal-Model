@@ -5,8 +5,8 @@ AMIN is a general-purpose Egyptian-law engine, not limited to one branch, court,
 ## Phase 1 — Foundation
 - [x] Create repository documentation and safe project skeleton.
 - [x] Define provider boundary, initial legal prompt, retrieval contract, API skeleton.
-- [ ] Validate configuration and API health endpoint in a reproducible environment.
-- [ ] Run automated tests and verify CI results.
+- [x] Validate API health behavior and the no-fake-answer path with automated tests.
+- [x] Run automated tests in GitHub Actions; continue to require a green run for each change.
 
 ## Phase 2 — Model selection
 - [x] Establish cross-branch model criteria and initial open-weight screening comparison.
@@ -33,7 +33,8 @@ AMIN is a general-purpose Egyptian-law engine, not limited to one branch, court,
 - [x] Specify adversarial strategic-lawyer reasoning: opponent modeling, omission/gap analysis, response selection, timing and procedural-risk checks.
 - [x] Implement a transparent rule-based strategy triage endpoint with deadline/silence safeguards.
 - [ ] Evaluate strategy decisions against lawyer-reviewed Egyptian case scenarios before relying on them in practice.
-- [ ] Implement hybrid retrieval, reranking, passage-level citations and date-aware retrieval.
+- [x] Implement lexical passage retrieval, provenance in API responses and metadata-based date-aware filtering.
+- [ ] Implement semantic embeddings, hybrid retrieval and reranking.
 - [ ] Support law in force today and law applicable on the facts date.
 - [ ] Separate binding authority, persuasive judgments, official commentary and secondary materials.
 - [ ] Add abstention and conflict handling for incomplete or inconsistent sources.
@@ -48,7 +49,8 @@ AMIN is a general-purpose Egyptian-law engine, not limited to one branch, court,
 - [x] Implement optional local Transformers inference adapter with lazy loading and local-only default.
 - [ ] Select, license-review, stage and benchmark an exact checkpoint before production use.
 - [ ] Integrate permission-gated legal retrieval into generated answers with verified citations.
-- [ ] Add authentication, rate limits, observability, privacy and deployment controls.
+- [x] Add an API-key gate for versioned API routes, failing closed when production has no key.
+- [ ] Add per-user authentication, tenant isolation, distributed rate limits, observability and privacy controls.
 - [ ] Run security, reliability and load tests.
 - [ ] Expose a stable API for future use by the existing Ameen app and other clients, without coupling this repository to that app during engine development.
 
