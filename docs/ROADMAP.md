@@ -13,7 +13,8 @@ AMIN is a general-purpose Egyptian-law engine, not limited to one branch, court,
 - [ ] Verify exact checkpoint, tokenizer, code and dependency licenses for commercial use.
 - [ ] Build Egyptian-law cross-branch benchmark and lawyer-reviewed gold answers.
 - [ ] Measure Arabic/legal quality, citation fidelity, temporal reasoning, latency, VRAM and cost.
-- [ ] Select baseline only after benchmark results.
+- [x] Select Gemma 4 31B IT QAT as the first runnable private-server baseline candidate; keep Jais-2-70B as Arabic-specialist challenger.
+- [ ] Accept final model only after Egyptian-law benchmark results.
 
 ## Phase 3 — Comprehensive Egyptian legal corpus
 - [x] Define all-branches coverage map, source hierarchy and temporal versioning.
@@ -47,11 +48,13 @@ AMIN is a general-purpose Egyptian-law engine, not limited to one branch, court,
 
 ## Phase 6 — Inference service and integration
 - [x] Implement optional local Transformers inference adapter with lazy loading and local-only default.
-- [ ] Select, license-review, stage and benchmark an exact checkpoint before production use.
+- [x] Add private vLLM-compatible provider and single-user Docker deployment recipe.
+- [ ] Provision the private GPU host, stage exact weights and pass live health/inference tests.
 - [ ] Integrate permission-gated legal retrieval into generated answers with verified citations.
 - [x] Add an API-key gate for versioned API routes, failing closed when production has no key.
 - [ ] Add per-user authentication, tenant isolation, distributed rate limits, observability and privacy controls.
 - [ ] Run security, reliability and load tests.
-- [ ] Expose a stable API for future use by the existing Ameen app and other clients, without coupling this repository to that app during engine development.
+- [x] Add a private API connector with independent client and model-server keys; keep API loopback-bound in the personal deployment.
+- [ ] Connect the existing Ameen app through a server-side authenticated proxy after the private service is live.
 
 No model training, complete legal corpus, successful test run, or production deployment is claimed by this roadmap.
