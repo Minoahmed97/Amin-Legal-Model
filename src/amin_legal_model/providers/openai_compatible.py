@@ -15,7 +15,9 @@ class OpenAICompatibleProvider(ModelProvider):
         *,
         timeout_seconds: float = 600.0,
         max_tokens: int = 4096,
-        temperature: float = 0.2,
+        temperature: float = 1.0,
+        top_p: float = 0.95,
+        top_k: int = 64,
     ) -> None:
         if not base_url.startswith(("http://", "https://")):
             raise ValueError("Model server URL must use http:// or https://.")
@@ -29,6 +31,8 @@ class OpenAICompatibleProvider(ModelProvider):
         self.timeout_seconds = timeout_seconds
         self.max_tokens = max_tokens
         self.temperature = temperature
+        self.top_p = top_p
+        self.top_k = top_k
 
     @property
     def model_loaded(self) -> bool:
@@ -60,6 +64,8 @@ class OpenAICompatibleProvider(ModelProvider):
                 {"role": "user", "content": user_prompt},
             ],
             "temperature": self.temperature,
+            "top_p": self.top_p,
+            "top_k": self.top_k,
             "max_tokens": self.max_tokens,
         }
         try:
