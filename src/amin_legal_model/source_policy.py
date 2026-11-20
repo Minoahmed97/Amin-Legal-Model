@@ -35,7 +35,7 @@ class SourceRegisterError(ValueError):
 
 
 def load_source_register(path: str | Path | None = None) -> dict[str, Any]:
-    register_path = Path(path) if path else Path(__file__).parents[3] / "configs" / "source_licenses.yaml"
+    register_path = Path(path) if path else Path(__file__).parents[2] / "configs" / "source_licenses.yaml"
     if not register_path.is_file():
         raise SourceRegisterError(f"Source license register not found: {register_path}")
     try:
