@@ -1,0 +1,76 @@
+services:
+  model:
+    image: vllm/vllm-openai:gemma4-cu130
+    restart: unless-stopped
+    ipc: host
+    shm_size: "16gb"
+    gpus: all
+    command:
+      - --model
+      - ${AMIN_MODEL_ID:-google/gemma-4-31B-it-qat-w4a16-ct}
+      - --served-model-name
+      - ${AMIN_MODEL_NAME:-amin-gemma-legal}
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8001"
+      - --api-key
+      - ${AMIN_MODEL_SERVER_KEY:?Set AMIN_MODEL_SERVER_KEY in .env}
+      - --max-model-len
+      - ${AMIN_MAX_MODEL_LEN:-16384}
+      - --max-num-seqs
+      - "1"
+      - --gpu-memory-utilization
+      - "0.90"
+      - --reasoning-parser
+      - gemma4
+    environment:
+      HF_HOME: /root/.cache/huggingface
+      HF_TOKEN: ${HF_TOKEN:-}
+    volumes:
+      - amin-model-cache:/root/.cache/huggingface
+    expose:
+      - "8001"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=5).read()"]
+      interval: 30s
+      timeout: 10s
+      retries: 30
+      start_period: 10m
+    networks:
+      - amin-private
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      model:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      AMIN_ENV: production
+      AMIN_PROVIDER: vllm
+      AMIN_MODEL_SERVER_URL: http://model:8001/v1
+      AMIN_MODEL_NAME: ${AMIN_MODEL_NAME:-amin-gemma-legal}
+      AMIN_MODEL_SERVER_KEY: ${AMIN_MODEL_SERVER_KEY:?Set AMIN_MODEL_SERVER_KEY in .env}
+      AMIN_LEGAL_INDEX_PATH: /app/data/index/legal.sqlite
+      AMIN_API_KEY: ${AMIN_API_KEY:?Set AMIN_API_KEY in .env}
+      AMIN_MAX_NEW_TOKENS: ${AMIN_MAX_NEW_TOKENS:-4096}
+      AMIN_TEMPERATURE: ${AMIN_TEMPERATURE:-0.2}
+      AMIN_INFERENCE_TIMEOUT_SECONDS: ${AMIN_INFERENCE_TIMEOUT_SECONDS:-900}
+    ports:
+      - "127.0.0.1:${AMIN_API_PORT:-8000}:8000"
+    volumes:
+      - ./data:/app/data
+    networks:
+      - amin-private
+
+networks:
+  amin-private:
+    internal: true
+
+volumes:
+  amin-model-cache:
