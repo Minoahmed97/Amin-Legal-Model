@@ -23,11 +23,14 @@ AMIN is a general-purpose Egyptian-law engine, not limited to one branch, court,
 - [ ] Verify access terms, copyright/database rights and lawful reuse before collection.
 - [x] Implement a permission-gated offline document importer with provenance, hashing and duplicate detection.
 - [ ] Implement OCR verification and page-level source mapping.
-- [x] Implement article-aware text chunking and permission-gated SQLite full-text indexing/search.\n- [ ] Implement amendment-chain resolution, semantic embeddings and reranking.
+- [x] Implement article-aware text chunking and permission-gated SQLite full-text indexing/search.
+- [ ] Implement amendment-chain resolution, semantic embeddings and reranking.
 - [ ] Track coverage gaps by branch, authority, year and document type.
 - [ ] Monitor new laws, amendments, repeal and newly published judgments.
 
 ## Phase 4 — Retrieval and legal reasoning
+- [x] Specify adversarial strategic-lawyer reasoning: opponent modeling, omission/gap analysis, response selection, timing and procedural-risk checks.
+- [ ] Implement and evaluate the strategic decision framework against lawyer-reviewed Egyptian case scenarios.
 - [ ] Implement hybrid retrieval, reranking, passage-level citations and date-aware retrieval.
 - [ ] Support law in force today and law applicable on the facts date.
 - [ ] Separate binding authority, persuasive judgments, official commentary and secondary materials.
