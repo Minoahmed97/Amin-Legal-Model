@@ -4,7 +4,7 @@ from amin_legal_model import __version__
 from amin_legal_model.legal.prompts import EGYPTIAN_LEGAL_SYSTEM_PROMPT
 from amin_legal_model.legal.strategy import assess_strategy
 from amin_legal_model.providers.factory import provider_from_environment
-from amin_legal_model.providers.base import ModelNotConfiguredError
+from amin_legal_model.providers.base import ModelNotConfiguredError, UnconfiguredProvider
 from amin_legal_model.schemas import LegalRequest, LegalResponse, LegalStrategyRequest
 
 app = FastAPI(
