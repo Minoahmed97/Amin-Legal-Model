@@ -97,6 +97,7 @@ def _connect(db_path: str | Path) -> sqlite3.Connection:
                 publication_date TEXT,
                 effective_from TEXT,
                 effective_to TEXT,
+                instrument_number TEXT,
                 legal_identifier TEXT,
                 amends_json TEXT NOT NULL DEFAULT '[]',
                 repeals_json TEXT NOT NULL DEFAULT '[]',
@@ -109,6 +110,7 @@ def _connect(db_path: str | Path) -> sqlite3.Connection:
             row["name"] for row in connection.execute("PRAGMA table_info(legal_chunks)").fetchall()
         }
         migrations = {
+            "instrument_number": "TEXT",
             "legal_identifier": "TEXT",
             "amends_json": "TEXT NOT NULL DEFAULT '[]'",
             "repeals_json": "TEXT NOT NULL DEFAULT '[]'",
@@ -170,14 +172,14 @@ def build_legal_index(
                             source_id, source_reference, source_url, publication_date,
                             effective_from, effective_to, legal_identifier, amends_json,
                             repeals_json, amended_articles_json, chunk_text
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                         (
                             document_id, chunk_number, record.get("title", ""),
                             record.get("branch", ""), record.get("document_type", ""),
                             source_id, record.get("source_reference", ""),
                             record.get("source_url"), record.get("publication_date"),
                             record.get("effective_from"), record.get("effective_to"),
-                            record.get("legal_identifier"),
+                            record.get("instrument_number"), record.get("legal_identifier"),
                             json.dumps(record.get("amends", []), ensure_ascii=False),
                             json.dumps(record.get("repeals", []), ensure_ascii=False),
                             json.dumps(record.get("amended_articles", []), ensure_ascii=False),
