@@ -4,7 +4,7 @@
 
 Use **Google Gemma 4 31B IT QAT W4A16 compressed-tensors** as the first deployment candidate:
 
-- Exact checkpoint: \`google/gemma-4-31B-it-qat-w4a16-ct\`
+- Exact checkpoint: `google/gemma-4-31B-it-qat-w4a16-ct`
 - Model card/license: Apache 2.0.
 - Instruction-tuned checkpoint, not base weights.
 - QAT compressed-tensors variant is explicitly provided for optimized vLLM inference.
