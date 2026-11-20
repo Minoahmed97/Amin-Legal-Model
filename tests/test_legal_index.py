@@ -15,28 +15,33 @@ from amin_legal_model.source_policy import SourcePermissionError
 def _register():
     return {"sources": [{
         "source_id": "licensed_source",
-        "name": "Licensed source",
         "license_status": "approved",
-        "permissions": {"index_and_embed": True, "ai_retrieval_and_analysis": True},
+        "permissions": {
+            "index_and_embed": True,
+            "ai_retrieval_and_analysis": True,
+        },
     }]}
 
 
-def _corpus(tmp_path: Path):
-    path = tmp_path / "legal_documents.jsonl"
+def _corpus(tmp_path: Path, *, extra: dict | None = None) -> Path:
     record = {
         "document_id": "doc-1",
-        "title": "قانون مدني تجريبي",
-        "document_type": "law",
-        "branch": "civil",
         "source_id": "licensed_source",
+        "title": "قانون مدني افتراضي",
+        "branch": "civil",
+        "document_type": "law",
         "source_reference": "الجريدة الرسمية، عدد تجريبي",
-        "source_url": "https://example.test/law",
-        "publication_date": "2020-01-01",
         "effective_from": "2020-02-01",
         "effective_to": None,
-        "text": "المادة 1 ينظم هذا القانون الالتزامات المدنية والعقود والتعويض عن الضرر. "
-                "المادة 2 يلتزم المدين بتنفيذ التزامه طبقاً لما اشتمل عليه العقد وبحسن نية.",
+        "legal_identifier": "LAW-1",
+        "amends": [],
+        "repeals": [],
+        "amended_articles": [],
+        "text": "المادة 1 الالتزامات المدنية تنشأ عن العقد وبحسن نية.",
     }
+    if extra:
+        record.update(extra)
+    path = tmp_path / "legal.jsonl"
     path.write_text(json.dumps(record, ensure_ascii=False) + "\n", encoding="utf-8")
     return path
 
@@ -87,3 +92,80 @@ def test_retrieval_rechecks_permission(tmp_path: Path):
 def test_missing_corpus_is_reported(tmp_path: Path):
     with pytest.raises(LegalIndexError, match="Corpus file not found"):
         build_legal_index(tmp_path / "missing.jsonl", tmp_path / "index.sqlite", register=_register())
+
+
+def test_date_aware_search_returns_active_amendments(tmp_path: Path):
+    corpus = _corpus(tmp_path)
+    amendment = {
+        "document_id": "amend-1",
+        "source_id": "licensed_source",
+        "title": "قانون معدل",
+        "branch": "civil",
+        "document_type": "amendment",
+        "source_reference": "عدد لاحق",
+        "effective_from": "2025-01-01",
+        "legal_identifier": "AMEND-1",
+        "amends": ["LAW-1"],
+        "amended_articles": ["1"],
+        "repeals": [],
+        "text": "المادة 1 تعديل الالتزامات المدنية وشروط العقد.",
+    }
+    with corpus.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(amendment, ensure_ascii=False) + "\n")
+    db = tmp_path / "index.sqlite"
+    build_legal_index(corpus, db, register=_register())
+    found = search_legal_index(
+        db, "الالتزامات المدنية", as_of_date="2026-11-20", register=_register()
+    )
+    base = next(item for item in found if item["document_id"] == "doc-1")
+    assert base["temporal_status"] == "within_recorded_effective_window"
+    assert base["active_amendments"][0]["legal_identifier"] == "AMEND-1"
+    assert "ليست شهادة" in base["temporal_warning"]
+
+
+def test_date_aware_search_excludes_recorded_repeal(tmp_path: Path):
+    corpus = _corpus(tmp_path)
+    repeal = {
+        "document_id": "repeal-1",
+        "source_id": "licensed_source",
+        "title": "قانون إلغاء",
+        "branch": "civil",
+        "document_type": "law",
+        "source_reference": "عدد لاحق",
+        "effective_from": "2025-01-01",
+        "legal_identifier": "REPEAL-1",
+        "amends": [],
+        "repeals": ["LAW-1"],
+        "amended_articles": [],
+        "text": "المادة 1 الالتزامات المدنية ألغيت صراحة بنص افتراضي.",
+    }
+    with corpus.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(repeal, ensure_ascii=False) + "\n")
+    db = tmp_path / "index.sqlite"
+    build_legal_index(corpus, db, register=_register())
+    old = search_legal_index(db, "الالتزامات المدنية", as_of_date="2024-12-31", register=_register())
+    new = search_legal_index(db, "الالتزامات المدنية", as_of_date="2026-11-20", register=_register())
+    assert any(item["document_id"] == "doc-1" for item in old)
+    assert not any(item["document_id"] == "doc-1" for item in new)
+
+
+def test_old_index_schema_is_migrated(tmp_path: Path):
+    import sqlite3
+    db = tmp_path / "old.sqlite"
+    connection = sqlite3.connect(db)
+    connection.execute(
+        """CREATE TABLE legal_chunks (
+            rowid INTEGER PRIMARY KEY, document_id TEXT NOT NULL, chunk_number INTEGER NOT NULL,
+            title TEXT NOT NULL, branch TEXT NOT NULL, document_type TEXT NOT NULL,
+            source_id TEXT NOT NULL, source_reference TEXT NOT NULL, source_url TEXT,
+            publication_date TEXT, effective_from TEXT, effective_to TEXT, chunk_text TEXT NOT NULL,
+            UNIQUE(document_id, chunk_number)
+        )"""
+    )
+    connection.commit()
+    connection.close()
+    from amin_legal_model.legal_index import _connect
+    migrated = _connect(db)
+    columns = {row["name"] for row in migrated.execute("PRAGMA table_info(legal_chunks)")}
+    migrated.close()
+    assert {"legal_identifier", "amends_json", "repeals_json"} <= columns
