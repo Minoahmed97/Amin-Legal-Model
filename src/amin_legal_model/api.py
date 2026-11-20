@@ -1,8 +1,10 @@
 from fastapi import FastAPI, HTTPException, status
 
 from amin_legal_model import __version__
+from amin_legal_model.legal.prompts import EGYPTIAN_LEGAL_SYSTEM_PROMPT
 from amin_legal_model.legal.strategy import assess_strategy
-from amin_legal_model.providers.base import ModelNotConfiguredError, UnconfiguredProvider
+from amin_legal_model.providers.factory import provider_from_environment
+from amin_legal_model.providers.base import ModelNotConfiguredError
 from amin_legal_model.schemas import LegalRequest, LegalResponse, LegalStrategyRequest
 
 app = FastAPI(
@@ -11,7 +13,7 @@ app = FastAPI(
     description="Reusable Egyptian-law engine API. Configure a licensed inference model for generation.",
 )
 
-_provider = UnconfiguredProvider()
+_provider = provider_from_environment()
 
 
 @app.get("/health")
@@ -40,7 +42,7 @@ def legal_strategy(request: LegalStrategyRequest) -> dict:
 async def legal_respond(request: LegalRequest) -> LegalResponse:
     try:
         answer = await _provider.generate(
-            system_prompt="",
+            system_prompt=EGYPTIAN_LEGAL_SYSTEM_PROMPT,
             user_prompt=f"Task: {request.task}\nJurisdiction: {request.jurisdiction}\n{request.text}",
         )
     except ModelNotConfiguredError as exc:
