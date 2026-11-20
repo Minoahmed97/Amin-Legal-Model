@@ -64,4 +64,4 @@ def test_past_entered_deadline_triggers_procedural_review_not_silence():
     result = assess_strategy(_facts(deadline_date=date(2026, 11, 19)))
     assert result["urgency"] == "عاجلة جدًا"
     assert "الآن" in result["recommendation"]
-    assert "entered_deadline_in_past" in result["rule_triggers"]
+    assert "entered_deadline_is_in_past" in result["rule_triggers"]
