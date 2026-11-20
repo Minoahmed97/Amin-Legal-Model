@@ -40,13 +40,19 @@ def require_api_access(x_amin_api_key: str | None = Header(default=None)) -> Non
 
 
 @app.get("/health")
-def health() -> dict[str, str | bool]:
+async def health() -> dict[str, str | bool]:
     configured = not isinstance(_provider, UnconfiguredProvider)
+    server_ready = False
+    if configured and callable(getattr(_provider, "health_check", None)):
+        server_ready = await _provider.health_check()
+    else:
+        server_ready = bool(getattr(_provider, "model_loaded", False))
     return {
         "status": "ok",
         "service": "amin-legal-model",
         "model_configured": configured,
         "model_loaded": bool(getattr(_provider, "model_loaded", False)),
+        "model_server_ready": server_ready,
         "message": (
             "API is running; inference availability depends on the configured provider and model."
             if configured else
