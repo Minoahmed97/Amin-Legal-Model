@@ -100,3 +100,32 @@ def test_legal_response_uses_authorized_retrieval_results(monkeypatch, tmp_path)
     )
     assert response.status_code == 200
     assert response.json()["sources"][0]["title"] == "قانون تجريبي"
+
+
+
+def test_api_key_is_required_when_configured(monkeypatch):
+    import amin_legal_model.api as api
+
+    monkeypatch.setenv("AMIN_API_KEY", "test-secret")
+    monkeypatch.delenv("AMIN_ENV", raising=False)
+    denied = client.post(
+        "/v1/legal/strategy",
+        json={"objective": "test", "case_stage": "appeal", "client_role": "appellant"},
+    )
+    assert denied.status_code == 401
+    allowed = client.post(
+        "/v1/legal/strategy",
+        headers={"X-Amin-Api-Key": "test-secret"},
+        json={"objective": "test", "case_stage": "appeal", "client_role": "appellant"},
+    )
+    assert allowed.status_code == 200
+
+
+def test_production_fails_closed_without_api_key(monkeypatch):
+    monkeypatch.delenv("AMIN_API_KEY", raising=False)
+    monkeypatch.setenv("AMIN_ENV", "production")
+    response = client.post(
+        "/v1/legal/strategy",
+        json={"objective": "test", "case_stage": "appeal", "client_role": "appellant"},
+    )
+    assert response.status_code == 503
