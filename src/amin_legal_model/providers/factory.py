@@ -39,7 +39,9 @@ def provider_from_environment(environ: Mapping[str, str] | None = None):
             model_server_key,
             timeout_seconds=float(env.get("AMIN_INFERENCE_TIMEOUT_SECONDS", "600")),
             max_tokens=int(env.get("AMIN_MAX_NEW_TOKENS", "4096")),
-            temperature=float(env.get("AMIN_TEMPERATURE", "0.2")),
+            temperature=float(env.get("AMIN_TEMPERATURE", "1.0")),
+            top_p=float(env.get("AMIN_TOP_P", "0.95")),
+            top_k=int(env.get("AMIN_TOP_K", "64")),
         )
 
     model_id = env.get("AMIN_MODEL_ID", "").strip()
