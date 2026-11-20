@@ -1,0 +1,98 @@
+version: 1
+policy: default_deny
+sources:
+  - source_id: idsc_egyptian_legislation_portal
+    name: Egyptian Legislation Portal (IDSC)
+    source_url: https://elpai.idsc.gov.eg/
+    terms_url: https://elpai.idsc.gov.eg/
+    terms_checked_at: "2026-11-20"
+    license_status: written_permission_required
+    evidence_ref: null
+    permissions:
+      manual_access: false
+      automated_access: false
+      bulk_export: false
+      store: false
+      ocr_and_normalize: false
+      index_and_embed: false
+      ai_retrieval_and_analysis: false
+      commercial_display: false
+      redistribute: false
+      train_or_finetune: false
+    notes: "Institutional license and exact permitted uses must be confirmed in writing."
+  - source_id: egyptian_court_of_cassation
+    name: Egyptian Court of Cassation portal
+    source_url: https://cc.gov.eg/
+    terms_url: https://cc.gov.eg/terms
+    terms_checked_at: "2026-11-20"
+    license_status: written_permission_required
+    evidence_ref: null
+    permissions:
+      manual_access: false
+      automated_access: false
+      bulk_export: false
+      store: false
+      ocr_and_normalize: false
+      index_and_embed: false
+      ai_retrieval_and_analysis: false
+      commercial_display: false
+      redistribute: false
+      train_or_finetune: false
+    notes: "Do not automate extraction. Obtain express written institutional authorization."
+  - source_id: official_gazette
+    name: Official Gazette and Al-Waqa'i Al-Misriyya
+    source_url: null
+    terms_url: null
+    terms_checked_at: null
+    license_status: unknown
+    evidence_ref: null
+    permissions:
+      manual_access: false
+      automated_access: false
+      bulk_export: false
+      store: false
+      ocr_and_normalize: false
+      index_and_embed: false
+      ai_retrieval_and_analysis: false
+      commercial_display: false
+      redistribute: false
+      train_or_finetune: false
+    notes: "Identify authorized publication/acquisition route and review applicable terms."
+  - source_id: ministry_of_finance_legislation
+    name: Egyptian Ministry of Finance legislation portal
+    source_url: https://mof.gov.eg/en/legislation/legislation
+    terms_url: https://mof.gov.eg/en/legislation/legislation
+    terms_checked_at: "2026-11-20"
+    license_status: unknown
+    evidence_ref: null
+    permissions:
+      manual_access: false
+      automated_access: false
+      bulk_export: false
+      store: false
+      ocr_and_normalize: false
+      index_and_embed: false
+      ai_retrieval_and_analysis: false
+      commercial_display: false
+      redistribute: false
+      train_or_finetune: false
+    notes: "Online texts are supplementary; verify Official Gazette and terms."
+  - source_id: wipo_lex
+    name: WIPO Lex
+    source_url: https://www.wipo.int/wipolex/
+    terms_url: https://www.wipo.int/
+    terms_checked_at: null
+    license_status: unknown
+    evidence_ref: null
+    permissions:
+      manual_access: false
+      automated_access: false
+      bulk_export: false
+      store: false
+      ocr_and_normalize: false
+      index_and_embed: false
+      ai_retrieval_and_analysis: false
+      commercial_display: false
+      redistribute: false
+      train_or_finetune: false
+    notes: "Secondary discovery source; review terms and verify each text against official publication."
