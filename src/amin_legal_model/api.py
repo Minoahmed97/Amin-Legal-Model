@@ -1,7 +1,8 @@
 import os
+import secrets
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, Header, HTTPException, status
 
 from amin_legal_model import __version__
 from amin_legal_model.legal.prompts import EGYPTIAN_LEGAL_SYSTEM_PROMPT
@@ -18,6 +19,24 @@ app = FastAPI(
 )
 
 _provider = provider_from_environment()
+
+
+def require_api_access(x_amin_api_key: str | None = Header(default=None)) -> None:
+    """Require a shared API key when configured; fail closed in production."""
+    expected = os.getenv("AMIN_API_KEY")
+    environment = os.getenv("AMIN_ENV", "development").strip().lower()
+    if not expected:
+        if environment == "production":
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Production API key is not configured.",
+            )
+        return
+    if not x_amin_api_key or not secrets.compare_digest(x_amin_api_key, expected):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="A valid X-Amin-Api-Key header is required.",
+        )
 
 
 @app.get("/health")
@@ -37,13 +56,17 @@ def health() -> dict[str, str | bool]:
 
 
 @app.post("/v1/legal/strategy")
-def legal_strategy(request: LegalStrategyRequest) -> dict:
+def legal_strategy(
+    request: LegalStrategyRequest, _: None = Depends(require_api_access)
+) -> dict:
     """Return a transparent first-pass strategy triage, not an AI legal opinion."""
     return assess_strategy(request.model_dump())
 
 
 @app.post("/v1/legal/respond", response_model=LegalResponse)
-async def legal_respond(request: LegalRequest) -> LegalResponse:
+async def legal_respond(
+    request: LegalRequest, _: None = Depends(require_api_access)
+) -> LegalResponse:
     warnings: list[str] = []
     sources: list[dict[str, str]] = []
     retrieval_context = (
