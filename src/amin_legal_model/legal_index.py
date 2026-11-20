@@ -29,11 +29,11 @@ def split_legal_text(text: str, *, max_chars: int = DEFAULT_CHUNK_CHARS,
                      overlap_chars: int = DEFAULT_OVERLAP_CHARS) -> list[str]:
     if max_chars < 200 or overlap_chars < 0 or overlap_chars >= max_chars:
         raise ValueError("Chunk sizes must satisfy max_chars >= 200 and 0 <= overlap < max.")
-    normalized = re.sub(r"\\s+", " ", text).strip()
+    normalized = re.sub(r"\s+", " ", text).strip()
     if not normalized:
         return []
     # Prefer article/paragraph boundaries before falling back to a hard split.
-    units = re.split(r"(?=(?:المادة|مادة)\\s*[（(]?\\d+|(?:Article)\\s+\\d+)", normalized, flags=re.IGNORECASE)
+    units = re.split(r"(?=(?:المادة|مادة)\s*[（(]?\d+|(?:Article)\s+\d+)", normalized, flags=re.IGNORECASE)
     chunks: list[str] = []
     current = ""
     for unit in units:
@@ -182,7 +182,7 @@ def search_legal_index(
         raise ValueError("limit must be between 1 and 20.")
     active_register = register if register is not None else load_source_register()
     # Quote each token so user input cannot inject FTS operators or syntax.
-    terms = re.findall(r"[\\w]+", query, flags=re.UNICODE)
+    terms = re.findall(r"[\w]+", query, flags=re.UNICODE)
     if not terms:
         return []
     match_query = " AND ".join('"' + term.replace('"', '""') + '"' for term in terms)
