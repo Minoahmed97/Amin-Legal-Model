@@ -45,6 +45,8 @@ pip install -e ".[inference]"
 
 ثم تعيين \`AMIN_MODEL_ID\` إلى مسار النموذج المحلي. لا يوجد checkpoint معتمد أو أوزان نموذج مخصصة مضمّنة في المستودع حاليًا. راجع [دليل تشغيل النموذج](docs/MODEL_RUNTIME.md).
 
+للتشغيل الشخصي على خادم GPU: انسخ `.env.personal.example` إلى `.env`، ثم اتبع [دليل النشر الشخصي](docs/PERSONAL_DEPLOYMENT.md). المرشح الحالي Gemma 4 31B IT QAT، ويمكن فحص التشغيل الفعلي عبر `scripts/check_personal_deployment.py` بعد تجهيز الخادم.
+
 ## نقاط API الأساسية
 
 - \`GET /health\`
