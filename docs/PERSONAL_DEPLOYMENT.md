@@ -59,6 +59,14 @@ curl -X POST http://127.0.0.1:8000/v1/legal/respond \
 
 This request verifies the inference path only. It is not a legal accuracy benchmark and will warn that no legal source retrieval was performed unless a reviewed index exists.
 
+Run the repeatable readiness + real-inference smoke test after startup:
+
+\`\`\`bash
+AMIN_API_KEY="$AMIN_API_KEY" python scripts/check_personal_deployment.py
+\`\`\`
+
+The script prints pass/fail state without printing the answer or secret.
+
 ## 5. Private access from phone and computer
 
 The API port is bound to \`127.0.0.1\`, so it is not directly reachable from the public internet. For remote personal access, use a private VPN such as WireGuard or Tailscale, or a reverse proxy accessible only through your private network with TLS and strong authentication. Do not change the bind address to \`0.0.0.0\` or expose port 8000 publicly as a shortcut.
