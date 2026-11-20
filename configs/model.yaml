@@ -1,0 +1,18 @@
+project:
+  name: "AMIN Legal Model"
+  domain: "Egyptian law"
+  language: "ar"
+
+runtime:
+  provider: "not_configured"
+  model_id: null
+  device: "auto"
+
+generation:
+  temperature: 0.2
+  max_new_tokens: 2048
+
+safety:
+  require_sources_for_legal_claims: true
+  prohibit_fabricated_citations: true
+  protect_client_data: true
