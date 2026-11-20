@@ -74,6 +74,9 @@ async def legal_respond(
         "وصرّح بأن السند القانوني يحتاج إلى تحقق من مصدر رسمي."
     )
 
+    if not request.retrieval_query:
+        warnings.append("لم يُنفذ بحث قانوني في قاعدة المصادر؛ أرسل retrieval_query لاسترجاع مقتطفات موثقة.")
+
     if request.retrieval_query:
         index_path = Path(os.getenv("AMIN_LEGAL_INDEX_PATH", "data/index/legal.sqlite"))
         if not index_path.is_file():
@@ -98,6 +101,8 @@ async def legal_respond(
                         "source_url": str(item.get("source_url") or ""),
                         "effective_from": str(item.get("effective_from") or ""),
                         "effective_to": str(item.get("effective_to") or ""),
+                        "instrument_number": str(item.get("instrument_number") or ""),
+                        "active_amendments": str(item.get("active_amendments") or []),
                         "document_id": str(item.get("document_id") or ""),
                         "chunk_number": str(item.get("chunk_number") or ""),
                     }
