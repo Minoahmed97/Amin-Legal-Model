@@ -2,17 +2,26 @@ project:
   name: "AMIN Legal Model"
   domain: "Egyptian law"
   language: "ar"
+  deployment: "single_user_private_server"
 
 runtime:
-  provider: "not_configured"
-  model_id: null
-  device: "auto"
+  provider: "vllm"
+  model_id: "google/gemma-4-31B-it-qat-w4a16-ct"
+  model_name: "amin-gemma-legal"
+  device: "nvidia_gpu"
+  api_bind: "127.0.0.1"
+  max_concurrent_sequences: 1
 
 generation:
   temperature: 0.2
-  max_new_tokens: 2048
+  max_new_tokens: 4096
+  max_model_len: 16384
+  reasoning_enabled: true
 
 safety:
   require_sources_for_legal_claims: true
   prohibit_fabricated_citations: true
   protect_client_data: true
+  public_model_server_port: false
+  client_api_key_required: true
+  private_model_server_key_required: true
