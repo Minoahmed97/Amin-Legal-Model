@@ -1,16 +1,19 @@
 """Permission-gated SQLite full-text index for the staging legal corpus.
 
-This is a lexical retrieval baseline (SQLite FTS5), not a vector/semantic
-index. It preserves document provenance and rechecks retrieval permission.
+This is a lexical retrieval baseline (SQLite FTS5), not a vector/semantic index.
+All results preserve provenance. Date-aware filtering reports recorded metadata
+status only; it does not certify that a provision is currently in force.
 """
 from __future__ import annotations
 
 import json
 import re
 import sqlite3
+from datetime import date
 from pathlib import Path
 from typing import Any
 
+from amin_legal_model.legal.timeline import assess_legal_timeline
 from amin_legal_model.source_policy import (
     SourcePermissionError,
     load_source_register,
@@ -25,15 +28,19 @@ class LegalIndexError(RuntimeError):
     """Raised when the searchable legal index cannot be built or queried."""
 
 
-def split_legal_text(text: str, *, max_chars: int = DEFAULT_CHUNK_CHARS,
-                     overlap_chars: int = DEFAULT_OVERLAP_CHARS) -> list[str]:
+def split_legal_text(
+    text: str, *, max_chars: int = DEFAULT_CHUNK_CHARS, overlap_chars: int = DEFAULT_OVERLAP_CHARS
+) -> list[str]:
     if max_chars < 200 or overlap_chars < 0 or overlap_chars >= max_chars:
         raise ValueError("Chunk sizes must satisfy max_chars >= 200 and 0 <= overlap < max.")
     normalized = re.sub(r"\s+", " ", text).strip()
     if not normalized:
         return []
-    # Prefer article/paragraph boundaries before falling back to a hard split.
-    units = re.split(r"(?=(?:المادة|مادة)\s*[（(]?\d+|(?:Article)\s+\d+)", normalized, flags=re.IGNORECASE)
+    units = re.split(
+        r"(?=(?:المادة|مادة)\s*[（(]?\d+|(?:Article)\s+\d+)",
+        normalized,
+        flags=re.IGNORECASE,
+    )
     chunks: list[str] = []
     current = ""
     for unit in units:
@@ -90,14 +97,30 @@ def _connect(db_path: str | Path) -> sqlite3.Connection:
                 publication_date TEXT,
                 effective_from TEXT,
                 effective_to TEXT,
+                legal_identifier TEXT,
+                amends_json TEXT NOT NULL DEFAULT '[]',
+                repeals_json TEXT NOT NULL DEFAULT '[]',
+                amended_articles_json TEXT NOT NULL DEFAULT '[]',
                 chunk_text TEXT NOT NULL,
                 UNIQUE(document_id, chunk_number)
             )"""
         )
+        existing_columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(legal_chunks)").fetchall()
+        }
+        migrations = {
+            "legal_identifier": "TEXT",
+            "amends_json": "TEXT NOT NULL DEFAULT '[]'",
+            "repeals_json": "TEXT NOT NULL DEFAULT '[]'",
+            "amended_articles_json": "TEXT NOT NULL DEFAULT '[]'",
+        }
+        for column, declaration in migrations.items():
+            if column not in existing_columns:
+                connection.execute(f"ALTER TABLE legal_chunks ADD COLUMN {column} {declaration}")
         connection.commit()
     except sqlite3.OperationalError as exc:
         connection.close()
-        raise LegalIndexError(f"SQLite FTS5 is unavailable: {exc}") from exc
+        raise LegalIndexError(f"SQLite FTS5 or schema migration is unavailable: {exc}") from exc
     return connection
 
 
@@ -145,14 +168,20 @@ def build_legal_index(
                         """INSERT INTO legal_chunks (
                             document_id, chunk_number, title, branch, document_type,
                             source_id, source_reference, source_url, publication_date,
-                            effective_from, effective_to, chunk_text
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                            effective_from, effective_to, legal_identifier, amends_json,
+                            repeals_json, amended_articles_json, chunk_text
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                         (
                             document_id, chunk_number, record.get("title", ""),
                             record.get("branch", ""), record.get("document_type", ""),
                             source_id, record.get("source_reference", ""),
                             record.get("source_url"), record.get("publication_date"),
-                            record.get("effective_from"), record.get("effective_to"), piece,
+                            record.get("effective_from"), record.get("effective_to"),
+                            record.get("legal_identifier"),
+                            json.dumps(record.get("amends", []), ensure_ascii=False),
+                            json.dumps(record.get("repeals", []), ensure_ascii=False),
+                            json.dumps(record.get("amended_articles", []), ensure_ascii=False),
+                            piece,
                         ),
                     )
                     rowid = cursor.lastrowid
@@ -174,14 +203,19 @@ def search_legal_index(
     query: str,
     *,
     limit: int = 5,
+    as_of_date: date | str | None = None,
     register: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     if not query.strip():
         return []
     if not 1 <= limit <= 20:
         raise ValueError("limit must be between 1 and 20.")
+    if isinstance(as_of_date, str):
+        try:
+            as_of_date = date.fromisoformat(as_of_date)
+        except ValueError as exc:
+            raise ValueError("as_of_date must use YYYY-MM-DD.") from exc
     active_register = register if register is not None else load_source_register()
-    # Quote each token so user input cannot inject FTS operators or syntax.
     terms = re.findall(r"[\w]+", query, flags=re.UNICODE)
     if not terms:
         return []
@@ -191,27 +225,75 @@ def search_legal_index(
         rows = connection.execute(
             """SELECT c.document_id, c.chunk_number, c.title, c.branch,
                       c.document_type, c.source_id, c.source_reference, c.source_url,
-                      c.publication_date, c.effective_from, c.effective_to, c.chunk_text,
+                      c.publication_date, c.effective_from, c.effective_to,
+                      c.legal_identifier, c.amends_json, c.repeals_json,
+                      c.amended_articles_json, c.chunk_text,
                       bm25(legal_chunks_fts) AS score
                FROM legal_chunks_fts f
                JOIN legal_chunks c ON c.rowid = f.rowid
                WHERE legal_chunks_fts MATCH ?
                ORDER BY score
                LIMIT ?""",
-            (match_query, limit * 3),
+            (match_query, min(limit * 20, 400) if as_of_date else limit * 3),
         ).fetchall()
-    except sqlite3.OperationalError as exc:
-        raise LegalIndexError(f"Search query failed: {exc}") from exc
+        timeline_map: dict[str, dict[str, Any]] = {}
+        if as_of_date:
+            metadata_rows = connection.execute(
+                """SELECT DISTINCT document_id, legal_identifier, title, instrument_number,
+                       effective_from, effective_to, amends_json, repeals_json,
+                       amended_articles_json
+                   FROM legal_chunks"""
+            ).fetchall()
+            documents: dict[str, dict[str, Any]] = {}
+            for item in metadata_rows:
+                documents[item["document_id"]] = {
+                    "document_id": item["document_id"],
+                    "legal_identifier": item["legal_identifier"],
+                    "title": item["title"],
+                    "instrument_number": item["instrument_number"],
+                    "effective_from": item["effective_from"],
+                    "effective_to": item["effective_to"],
+                    "amends": json.loads(item["amends_json"] or "[]"),
+                    "repeals": json.loads(item["repeals_json"] or "[]"),
+                    "amended_articles": json.loads(item["amended_articles_json"] or "[]"),
+                }
+            resolved = assess_legal_timeline(list(documents.values()), as_of_date)
+            timeline_map = {
+                str(item.get("document_id")): item for item in resolved
+            }
+    except (sqlite3.OperationalError, json.JSONDecodeError, ValueError) as exc:
+        raise LegalIndexError(f"Search or temporal resolution failed: {exc}") from exc
     finally:
         connection.close()
 
     results: list[dict[str, Any]] = []
     for row in rows:
         try:
-            require_source_permission(row["source_id"], "ai_retrieval_and_analysis", register=active_register)
+            require_source_permission(
+                row["source_id"], "ai_retrieval_and_analysis", register=active_register
+            )
         except SourcePermissionError:
             continue
-        results.append(dict(row))
+        result = dict(row)
+        if as_of_date:
+            status = timeline_map.get(str(row["document_id"]), {}).get("status", "unknown")
+            if status in {"not_yet_effective", "expired_or_ended", "repealed_by_recorded_instrument"}:
+                continue
+            result["temporal_status"] = status
+            result["active_amendments"] = timeline_map.get(
+                str(row["document_id"]), {}
+            ).get("active_amendments", [])
+            result["temporal_warning"] = (
+                "الحالة مستنتجة من بيانات التواريخ والعلاقات المسجلة فقط، وليست شهادة بأن النص هو القانون الواجب التطبيق."
+            )
+            if status == "unknown_effective_date":
+                result["temporal_warning"] += " تاريخ السريان غير مسجل أو غير متحقق."
+            if result["active_amendments"]:
+                result["temporal_warning"] += " توجد تعديلات مسجلة؛ يجب مراجعة نصوصها ومقابلة المواد قبل الاستناد."
+        result["amends"] = json.loads(result.pop("amends_json") or "[]")
+        result["repeals"] = json.loads(result.pop("repeals_json") or "[]")
+        result["amended_articles"] = json.loads(result.pop("amended_articles_json") or "[]")
+        results.append(result)
         if len(results) >= limit:
             break
     return results
