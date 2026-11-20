@@ -10,7 +10,7 @@ AMIN is a general-purpose Egyptian-law engine, not limited to one branch, court,
 
 ## Phase 2 — Model selection
 - [x] Establish cross-branch model criteria and initial open-weight screening comparison.
-- [ ] Verify exact checkpoint, tokenizer, code and dependency licenses for commercial use.
+- [ ] Verify exact checkpoint, tokenizer, code and dependency licenses for personal deployment.
 - [ ] Build Egyptian-law cross-branch benchmark and lawyer-reviewed gold answers.
 - [ ] Measure Arabic/legal quality, citation fidelity, temporal reasoning, latency, VRAM and cost.
 - [x] Select Gemma 4 31B IT QAT as the first runnable private-server baseline candidate; keep Jais-2-70B as Arabic-specialist challenger.
@@ -57,4 +57,4 @@ AMIN is a general-purpose Egyptian-law engine, not limited to one branch, court,
 - [x] Add a private API connector with independent client and model-server keys; keep API loopback-bound in the personal deployment.
 - [ ] Connect the existing Ameen app through a server-side authenticated proxy after the private service is live.
 
-No model training, complete legal corpus, successful test run, or production deployment is claimed by this roadmap.
+No live private-server deployment, complete Egyptian legal corpus, or completed Egyptian-law benchmark is claimed by this roadmap.
