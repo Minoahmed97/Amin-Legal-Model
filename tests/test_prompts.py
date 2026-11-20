@@ -6,7 +6,7 @@ def test_prompt_prohibits_fabricated_legal_authorities() -> None:
 
 
 def test_prompt_requires_disclosing_missing_sources() -> None:
-    assert "فاذكر ما ينقص وأثره" in EGYPTIAN_LEGAL_SYSTEM_PROMPT
+    assert "حدد النقص صراحة" in EGYPTIAN_LEGAL_SYSTEM_PROMPT
 
 
 def test_prompt_requires_adversarial_analysis_and_counterargument() -> None:
