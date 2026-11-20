@@ -25,6 +25,8 @@ class OpenAICompatibleProvider(ModelProvider):
             raise ValueError("Model name and private model-server key are required.")
         if timeout_seconds <= 0 or max_tokens < 1 or temperature < 0:
             raise ValueError("Invalid inference timeout or generation settings.")
+        if not 0 < top_p <= 1 or top_k < 0:
+            raise ValueError("top_p must be in (0, 1] and top_k must be non-negative.")
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.api_key = api_key
