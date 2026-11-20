@@ -1,0 +1,29 @@
+project:
+  name: "AMIN Legal Model — Android local trial"
+  domain: "Egyptian law"
+  language: "ar"
+  deployment: "single_user_android_local"
+
+runtime:
+  engine: "llama.cpp"
+  model_repository: "ggml-org/Qwen3-1.7B-GGUF"
+  model_file: "Qwen3-1.7B-Q4_K_M.gguf"
+  model_format: "GGUF"
+  quantization: "Q4_K_M"
+  model_file_size_bytes_approx: 1280000000
+  device_target: "Infinix HOT 60 5G / Dimensity 7060 / 6GB physical RAM"
+  backend: "CPU-first"
+  bind: "127.0.0.1"
+  max_parallel_requests: 1
+
+generation:
+  context_tokens_initial: 2048
+  max_new_tokens_initial: 512
+  temperature: 0.2
+
+acceptance:
+  status: "candidate_for_device_smoke_test_only"
+  legal_model_accepted: false
+  require_lawyer_reviewed_egyptian_benchmark: true
+  require_verified_legal_sources: true
+  require_device_memory_latency_thermal_measurements: true
