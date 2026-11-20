@@ -13,39 +13,39 @@ The full BF16 Gemma 4 31B deployment recipe uses an 80 GB NVIDIA GPU. The QAT co
 
 ## 2. Configure secrets
 
-\`\`\`bash
+```bash
 cp .env.personal.example .env
-\`\`\`
+```
 
-Replace both secrets with independent random values. For example, generate them locally using \`openssl rand -hex 32\`. Never commit \`.env\`, paste secrets into GitHub, or put the model-server key in a browser.
+Replace both secrets with independent random values. For example, generate them locally using `openssl rand -hex 32`. Never commit `.env`, paste secrets into GitHub, or put the model-server key in a browser.
 
-- \`AMIN_API_KEY\`: your private app/client-to-API key.
-- \`AMIN_MODEL_SERVER_KEY\`: internal API key used only between the AMIN API container and vLLM.
-- \`AMIN_MODEL_ID\`: exact model checkpoint.
-- \`AMIN_MODEL_NAME\`: internal served name.
+- `AMIN_API_KEY`: your private app/client-to-API key.
+- `AMIN_MODEL_SERVER_KEY`: internal API key used only between the AMIN API container and vLLM.
+- `AMIN_MODEL_ID`: exact model checkpoint.
+- `AMIN_MODEL_NAME`: internal served name.
 
 ## 3. Start the private server
 
-\`\`\`bash
+```bash
 docker compose -f docker-compose.personal.yml up -d --build
 docker compose -f docker-compose.personal.yml logs -f model
-\`\`\`
+```
 
 The first run downloads the checkpoint to a persistent Docker volume. It may take a long time. Wait for the model health check to become healthy, then:
 
-\`\`\`bash
+```bash
 curl http://127.0.0.1:8000/health
-\`\`\`
+```
 
 Expected readiness fields:
-- \`model_configured: true\`
-- \`model_server_ready: true\`
+- `model_configured: true`
+- `model_server_ready: true`
 
 If the server cannot fit the model, do not reduce safeguards or silently switch to a hosted API. Adjust the GPU, quantization, or model size after measuring the failure.
 
 ## 4. Test a real private inference request
 
-\`\`\`bash
+```bash
 curl -X POST http://127.0.0.1:8000/v1/legal/respond \
   -H "Content-Type: application/json" \
   -H "X-Amin-Api-Key: $AMIN_API_KEY" \
@@ -55,23 +55,23 @@ curl -X POST http://127.0.0.1:8000/v1/legal/respond \
     "language": "ar",
     "text": "اختبار تشغيل فقط: اشرح الفرق بين الدفع الشكلي والدفع الموضوعي، ولا تذكر مادة قانونية ما لم تستند إلى مصدر مسترجع."
   }'
-\`\`\`
+```
 
 This request verifies the inference path only. It is not a legal accuracy benchmark and will warn that no legal source retrieval was performed unless a reviewed index exists.
 
 Run the repeatable readiness + real-inference smoke test after startup:
 
-\`\`\`bash
+```bash
 AMIN_API_KEY="$AMIN_API_KEY" python scripts/check_personal_deployment.py
-\`\`\`
+```
 
 The script prints pass/fail state without printing the answer or secret.
 
 ## 5. Private access from phone and computer
 
-The API port is bound to \`127.0.0.1\`, so it is not directly reachable from the public internet. For remote personal access, use a private VPN such as WireGuard or Tailscale, or a reverse proxy accessible only through your private network with TLS and strong authentication. Do not change the bind address to \`0.0.0.0\` or expose port 8000 publicly as a shortcut.
+The API port is bound to `127.0.0.1`, so it is not directly reachable from the public internet. For remote personal access, use a private VPN such as WireGuard or Tailscale, or a reverse proxy accessible only through your private network with TLS and strong authentication. Do not change the bind address to `0.0.0.0` or expose port 8000 publicly as a shortcut.
 
-Your client sends the \`X-Amin-Api-Key\` header. Store it in a trusted server-side integration, not in public frontend source code. For a browser-only client, use an authenticated same-origin backend proxy rather than exposing the secret in JavaScript.
+Your client sends the `X-Amin-Api-Key` header. Store it in a trusted server-side integration, not in public frontend source code. For a browser-only client, use an authenticated same-origin backend proxy rather than exposing the secret in JavaScript.
 
 ## 6. Legal data and index
 
@@ -81,11 +81,11 @@ No Egyptian legal corpus is bundled with this deployment. Do not interpret an em
 
 ## 7. Operations
 
-\`\`\`bash
+```bash
 docker compose -f docker-compose.personal.yml ps
 docker compose -f docker-compose.personal.yml logs --tail=200 api model
 docker compose -f docker-compose.personal.yml down
-\`\`\`
+```
 
 Back up the legal corpus and SQLite index separately from the model cache. Encrypt backups. Never include case documents in public issue reports or CI logs.
 
