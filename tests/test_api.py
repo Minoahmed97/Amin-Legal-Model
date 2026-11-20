@@ -129,3 +129,20 @@ def test_production_fails_closed_without_api_key(monkeypatch):
         json={"objective": "test", "case_stage": "appeal", "client_role": "appellant"},
     )
     assert response.status_code == 503
+
+
+
+def test_health_reports_private_model_server_readiness(monkeypatch):
+    import amin_legal_model.api as api
+
+    class FakeRemoteProvider:
+        model_loaded = False
+        async def health_check(self):
+            return True
+
+    monkeypatch.setattr(api, "_provider", FakeRemoteProvider())
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json()["model_configured"] is True
+    assert response.json()["model_loaded"] is False
+    assert response.json()["model_server_ready"] is True
